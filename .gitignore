@@ -1,0 +1,15 @@
+.DS_Store
+
+## SBT
+target/
+project/project
+
+## IDEA
+.idea
+*.iml
+
+*.class
+*.log
+*.env
+*.sc
+*.xml
