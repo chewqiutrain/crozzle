@@ -8,14 +8,6 @@ mainClass in (Compile, run) := Some("crozzle.Main")
 
 scalacOptions += "-Ypartial-unification"
 
-
-lazy val scalaSlack = "com.github.slack-scala-client" %% "slack-scala-client" % "0.2.6"
-lazy val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.5.19"
-lazy val akkaHttp = "com.typesafe.akka" %% "akka-http-core" % "10.1.7"
-lazy val akkaStream = "com.typesafe.akka" %% "akka-stream" % "2.5.21"
-
-libraryDependencies ++= Seq(scalaSlack, akkaActor, akkaHttp, akkaStream)
-
 lazy val slf4j = "org.slf4j" % "slf4j-api" % "1.7.25"
 lazy val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.2.3"
 
@@ -27,7 +19,6 @@ lazy val http4s_blaze_server = "org.http4s" %% "http4s-blaze-server" % http4sVer
 lazy val http4s_blaze_client = "org.http4s" %% "http4s-blaze-client" % http4sVersion
 
 libraryDependencies ++= Seq(http4s_dsl, http4s_blaze_server, http4s_blaze_client)
-
 
 
 val log4catsVersion = "0.3.0"
@@ -50,3 +41,11 @@ lazy val fs2_core = "co.fs2" %% "fs2-core" % fs2Version
 
 libraryDependencies += fs2_core
 
+val doobieVersion = "0.7.0"
+lazy val doobie_core = "org.tpolecat" %% "doobie-core" % doobieVersion
+lazy val doobie_hikari = "org.tpolecat" %% "doobie-hikari" % doobieVersion
+lazy val doobie_pg = "org.tpolecat" %% "doobie-postgres" % doobieVersion
+lazy val doobie_scalatest = "org.tpolecat" %% "doobie-scalatest" % doobieVersion % "test"
+
+
+libraryDependencies ++= Seq(doobie_core, doobie_hikari, doobie_pg, doobie_scalatest)
