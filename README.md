@@ -8,7 +8,7 @@ The mini-cross-mini-club channel at Cota is where Co10s note the time they took 
 
 ## Docker
 ```bash
-docker run --rm --name croz-pg -e POSTGRES_PASSWORD=12345 -d -p 127.0.0.1:15432:5432 -v $HOME/docker/volumes/postgres:/var/lib/postgresql/data  postgres
+docker run --rm --name croz-pg -e POSTGRES_PASSWORD=12345 -d -p 127.0.0.1:15435:5432 -v $HOME/docker/volumes/postgres:/var/lib/postgresql/data postgres
 ```
 
 ## TODOs
