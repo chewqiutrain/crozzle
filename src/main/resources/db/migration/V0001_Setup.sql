@@ -1,22 +1,10 @@
 -- Sets up database for crozzle
 
--- this guy doesn't play ball. need to do it once in db postgres, once in db crobie. or maybe just need to wait x min for install?
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
-CREATE ROLE crobie WITH LOGIN SUPERUSER;
-
-CREATE DATABASE crobie;
-
-GRANT ALL PRIVILEGES ON DATABASE crobie TO crobie;
-
--- idk why this works in influx but not here...
--- work around is to do
+-- Should be using database = crobie
 -- \c crobie
-SET search_path TO crobie;
 
 -- this guy doesn't play ball. need to do it once in db postgres, once in db crobie. or maybe just need to wait x min for install?
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -37,7 +25,7 @@ SET search_path TO emc;
 
 -- should player_id default to uuid_generate_v4() i.e. random UUID, so cannot replicate given a name.
 -- use case would be to default to v4 if trigger fails. but is that a good idea?
-CREATE TABLE players (
+CREATE TABLE emc.players (
     player_id UUID NOT NULL,
     player_name VARCHAR(256) NOT NULL,
     created_timestamp TIMESTAMP WITHOUT TIME ZONE DEFAULT transaction_timestamp(),
@@ -98,6 +86,7 @@ CREATE TRIGGER emc_scores_make_id BEFORE INSERT ON emc.scores FOR EACH ROW EXECU
 
 
 ALTER TABLE emc.scores ADD CONSTRAINT score_positive CHECK (score > 0);
+ALTER TABLE emc.scores ADD CONSTRAINT uniq_player_game_date_score UNIQUE (player_id, game_date, score);
 ALTER TABLE emc.scores ADD CONSTRAINT scores_player_id_fkey FOREIGN KEY (player_id) REFERENCES emc.players(player_id);
 ALTER TABLE emc.scores ADD CONSTRAINT emc_scores_pkey PRIMARY KEY (score_id);
 
