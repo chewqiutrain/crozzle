@@ -3,6 +3,7 @@ package crozzle.model
 import java.time.LocalDate
 import java.util.UUID
 
+import cats.Show
 import doobie.util.{Read, Write}
 import doobie.postgres.implicits._ // for UUID
 
@@ -14,4 +15,5 @@ object Score {
   implicit val readScore: Read[Score] = Read[(UUID, UUID, Int, LocalDate)].map[Score](i => apply(i._1, i._2, i._3, i._4))
   implicit val writeScore: Write[Score] = Write[(UUID, UUID, Int, LocalDate)].contramap(s => (s.score_id, s.player_id, s.score, s.game_date))
 
+  implicit val showScore: Show[Score] = Show.show[Score](s => s"Score[player: ${s.player_id} | score: ${s.score} | gameDate: ${s.game_date.toString}]")
 }
