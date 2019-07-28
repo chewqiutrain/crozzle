@@ -12,9 +12,12 @@ docker run --rm --name croz-pg -e POSTGRES_PASSWORD=12345 -d -p 127.0.0.1:15435:
 ```
 
 ## TODOs
-1. Database algebra and interpreter 
-1. Main loop
-1. Parameters in environment variables
+1. Tidy up main loop
+1. Slack return message composition, especially for Norden
+1. CrobieInterpreter logging situation
+1. Integration testing in code
+1. Configurations
+1. Dockerization
 1. Get someone to help with dashboarding of data / analytics 
 1. Web scraping of crossword puzzle solutions
 1. Persistence of crossword puzzle solutions
