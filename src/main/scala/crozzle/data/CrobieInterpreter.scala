@@ -7,13 +7,15 @@ import cats.data.NonEmptyList
 import cats.effect.Effect
 import doobie.implicits._
 import doobie.free.connection.ConnectionIO
-import doobie.postgres.implicits._ // for UUID
+import doobie.postgres.implicits._
 import io.chrisdavenport.log4cats.Logger
-
 import crozzle.model.{Player, Score}
 import crozzle.db.namedLogHandler
+import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
 
-class CrobieInterpreter[F[_]](implicit logger: Logger[F], effect: Effect[F]) extends CrobieRepoAlg[ConnectionIO] {
+class CrobieInterpreter[F[_]](implicit effect: Effect[F]) extends CrobieRepoAlg[ConnectionIO] {
+
+  implicit val logger: Logger[F] = Slf4jLogger.getLoggerFromName("CrobieInterpreter")
 
   override def fetchPlayerById(player_id: UUID): ConnectionIO[Option[Player]] = {
     sql"""SELECT player_id, player_name
@@ -34,7 +36,8 @@ class CrobieInterpreter[F[_]](implicit logger: Logger[F], effect: Effect[F]) ext
   override def insertPlayer(player_name: String, application_version: String): ConnectionIO[Player] = {
     sql"""INSERT INTO emc.players (player_name, application_version)
           VALUES ($player_name, $application_version)
-          ON CONFLICT DO NOTHING
+          ON CONFLICT (player_id) DO UPDATE
+            SET player_name = EXCLUDED.player_name
           RETURNING player_id, player_name"""
       .updateWithLogHandler(namedLogHandler("insertPlayer"))
       .withUniqueGeneratedKeys[Player]("player_id", "player_name")
@@ -52,8 +55,8 @@ class CrobieInterpreter[F[_]](implicit logger: Logger[F], effect: Effect[F]) ext
   private def insertScore(player_id: UUID, score: Int, game_date: LocalDate, application_version: String): ConnectionIO[Score] = {
     sql"""INSERT INTO emc.scores (player_id, score, game_date, application_version)
           VALUES ($player_id, $score, $game_date, $application_version)
-          ON CONFLICT (score, game_date) DO NOTHING
-          RETURNING (score_id, player_id, score, game_date)
+          ON CONFLICT (player_id, game_date, score) DO NOTHING
+          RETURNING score_id, player_id, score, game_date
        """
       .updateWithLogHandler(namedLogHandler("insertScore"))
       .withUniqueGeneratedKeys[Score]("player_id", "score", "game_date")
