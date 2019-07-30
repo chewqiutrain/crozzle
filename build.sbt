@@ -17,8 +17,17 @@ val http4sVersion = "0.20.6"
 lazy val http4s_dsl = "org.http4s" %% "http4s-dsl" % http4sVersion
 lazy val http4s_blaze_server = "org.http4s" %% "http4s-blaze-server" % http4sVersion
 lazy val http4s_blaze_client = "org.http4s" %% "http4s-blaze-client" % http4sVersion
+lazy val http4s_circe = "org.http4s" %% "http4s-circe" % http4sVersion
 
-libraryDependencies ++= Seq(http4s_dsl, http4s_blaze_server, http4s_blaze_client)
+libraryDependencies ++= Seq(http4s_dsl, http4s_blaze_server, http4s_blaze_client, http4s_circe)
+
+lazy val circeVersion = "0.11.1"
+lazy val circe_core = "io.circe" %% "circe-core" % circeVersion
+lazy val circe_generic = "io.circe" %% "circe-generic" % circeVersion
+lazy val circe_parser = "io.circe" %% "circe-parser" % circeVersion
+lazy val circe_literal = "io.circe" %% "circe-literal" % circeVersion
+
+libraryDependencies ++= Seq(circe_core, circe_generic, circe_parser, circe_literal)
 
 
 val log4catsVersion = "0.3.0"
