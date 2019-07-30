@@ -4,19 +4,21 @@ import cats.implicits._
 import cats.syntax._
 import cats.effect._
 import org.http4s._
+import org.http4s.circe._
 import org.http4s.dsl.io._
 import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
 import io.chrisdavenport.log4cats.Logger
 import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
+import io.circe.syntax._
 
 import doobie.hikari.HikariTransactor
 import doobie.util.ExecutionContexts
 import doobie.implicits._
 import crozzle.db.getTransactor
 import crozzle.data.CrobieInterpreter
-import crozzle.model.{Player, Score}
+import crozzle.model.{Player, Score, SimpleSlackMessage}
 
 
 object Main extends IOApp {
@@ -39,7 +41,7 @@ object Main extends IOApp {
       res match {
         case Left(t) => log.error(s"In Run Handler Left: Error: ${t.getMessage} \n ${t.getCause}") *>
           InternalServerError(s"Fatal Error: ${t.getMessage}")
-        case Right((player, score)) => Ok(s"Player: ${player.show} | Score: ${score.show}")
+        case Right((player, score)) => Ok(SimpleSlackMessage.defaultSlackMessage(player, score).asJson)
       }
     }
 

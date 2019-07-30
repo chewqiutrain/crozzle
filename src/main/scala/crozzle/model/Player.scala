@@ -15,5 +15,5 @@ object Player {
   implicit val writePlayer: Write[Player] = Write[(UUID, String)].contramap(p => (p.player_id, p.player_name))
 
   implicit val showPlayer: Show[Player] = Show.show[Player](p => s"Player[id: ${p.player_id} | name: ${p.player_name}]")
-\
+
 }
