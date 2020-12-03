@@ -3,9 +3,8 @@ package crozzle
 import cats.effect._
 import cats.effect.syntax._
 import cats.implicits._
-
+import cats.effect.Blocker
 import doobie._
-//import doobie.implicits._
 import doobie.hikari._
 import doobie.util.log.{ Success, ProcessingFailure, ExecFailure }
 import io.chrisdavenport.log4cats.Logger
@@ -21,7 +20,7 @@ package object db {
       "postgres",                                   // username
       "12345",                                     // password
       connectionEC,                                     // await connection here
-      transactionEC // execute JDBC operations here
+      Blocker.liftExecutionContext(transactionEC) // execute JDBC operations here
     )
 
   // unconvinced that this is worth the hassle of .runAsync. callback is wrt to logging error?

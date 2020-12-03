@@ -5,7 +5,8 @@ import java.util.UUID
 
 import cats.Show
 import doobie.util.{Read, Write}
-import doobie.postgres.implicits._ // for UUID
+import doobie.implicits.legacy.localdate._ // for LocalDate
+import doobie.postgres.implicits._ // needed for UUID
 
 case class Score(score_id: UUID, player_id: UUID, score: Integer, game_date: LocalDate)
 

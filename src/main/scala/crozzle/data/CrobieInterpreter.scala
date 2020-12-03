@@ -7,7 +7,8 @@ import cats.data.NonEmptyList
 import cats.effect.Effect
 import doobie.implicits._
 import doobie.free.connection.ConnectionIO
-import doobie.postgres.implicits._
+import doobie.implicits.legacy.localdate._ // needed for localdate
+import doobie.postgres.implicits._ // needed for UUID
 import io.chrisdavenport.log4cats.Logger
 import crozzle.model.{Player, Score}
 import crozzle.db.namedLogHandler

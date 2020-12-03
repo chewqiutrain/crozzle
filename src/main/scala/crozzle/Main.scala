@@ -18,7 +18,11 @@ import doobie.util.ExecutionContexts
 import doobie.implicits._
 import crozzle.db.getTransactor
 import crozzle.data.CrobieInterpreter
-import crozzle.model.{Player, Score, SimpleSlackMessage}
+import crozzle.model.{Player, Score}
+
+import crozzle.http.WebServer
+import scala.concurrent.ExecutionContext.Implicits.global
+
 
 
 object Main extends IOApp {
@@ -34,41 +38,14 @@ object Main extends IOApp {
 
     val crobieInterpreter: CrobieInterpreter[IO] = new CrobieInterpreter[IO]()
 
-    val crozzleService: CrozzleService[IO] = new CrozzleService(transactor, crobieInterpreter)
+//    val crozzleService: CrozzleService[IO] = new CrozzleService(transactor, crobieInterpreter)
 
-    // TODO: scratch work; move web server stuff to its own package
-    def runResultHandler(res: Either[Throwable, (Player, Score)]): IO[Response[IO]] = {
-      res match {
-        case Left(t) => log.error(s"In Run Handler Left: Error: ${t.getMessage} \n ${t.getCause}") *>
-          InternalServerError(s"Fatal Error: ${t.getMessage}")
-        case Right((player, score)) => Ok(SimpleSlackMessage.defaultSlackMessage(player, score).asJson)
-      }
-    }
-
-    val crozzleServiceRoute: HttpRoutes[IO] = HttpRoutes.of[IO] {
-      case GET -> Root / "status" => Ok("Crozzle ALL SYSTEMS NOMINAL")
-      case POST -> Root / "crozzle" => Ok("In Crozzle Post")
-      case req @ POST -> Root => {
-        req.decode[UrlForm]{ form =>
-          val x = for {
-            _ <- log.info(s"Received message: ${form.values.mkString("\n")}")
-            playerAndScore <- crozzleService.run(form)
-            _ <- log.info(s"CrozzleService.run successful")
-          } yield playerAndScore
-
-          val out = x.attempt.flatMap(maybeSuccess => runResultHandler(maybeSuccess))
-          out
-        }
-      }
-    }
-
-
-    val httpApp = Router("/" -> crozzleServiceRoute).orNotFound
-
-    val serverBuilder = BlazeServerBuilder[IO].bindHttp(8080, "localhost").withHttpApp(httpApp)
+    val host = "localhost"
+    val port = 8080
+    val webServer = new WebServer[IO](host, port)
 
     //TODO: scratch work; to tidy up. Also figure out http4s shutdown hooks
-    val x: IO[ExitCode] = IO(println("start")) *> serverBuilder.serve.compile.drain.as(ExitCode.Success) <* IO(println("shutdown"))
+    val x: IO[ExitCode] = IO(println("start")) *> webServer.server.serve.compile.drain.as(ExitCode.Success) <* IO(println("shutdown"))
     x
 
   }
