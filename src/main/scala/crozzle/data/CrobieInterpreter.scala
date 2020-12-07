@@ -18,25 +18,25 @@ class CrobieInterpreter[F[_]](implicit effect: Effect[F]) extends CrobieRepoAlg[
 
   implicit val logger: Logger[F] = Slf4jLogger.getLoggerFromName("CrobieInterpreter")
 
-  override def fetchPlayerById(player_id: UUID): ConnectionIO[Option[Player]] = {
+  override def fetchPlayerById(playerId: UUID): ConnectionIO[Option[Player]] = {
     sql"""SELECT player_id, player_name
          |  FROM emc.players
-         |  WHERE player_id = $player_id""".stripMargin
+         |  WHERE player_id = $playerId""".stripMargin
       .queryWithLogHandler[Player](namedLogHandler("fetchPlayerById"))
       .option
   }
 
-  override def fetchPlayersByName(player_name: String): ConnectionIO[NonEmptyList[Player]] = {
+  override def fetchPlayersByName(playerName: String): ConnectionIO[List[Player]] = {
     sql"""SELECT player_id, player_name
          |  FROM emc.players
-         |  WHERE player_name = $player_name""".stripMargin
+         |  WHERE player_name = $playerName""".stripMargin
       .queryWithLogHandler[Player](namedLogHandler("fetchPlayersByName"))
-      .nel
+      .to[List]
   }
 
-  override def insertPlayer(player_name: String, application_version: String): ConnectionIO[Player] = {
+  override def insertPlayer(playerName: String, applicationVersion: String): ConnectionIO[Player] = {
     sql"""INSERT INTO emc.players (player_name, application_version)
-          VALUES ($player_name, $application_version)
+          VALUES ($playerName, $applicationVersion)
           ON CONFLICT (player_id) DO UPDATE
             SET player_name = EXCLUDED.player_name
           RETURNING player_id, player_name"""
@@ -44,18 +44,18 @@ class CrobieInterpreter[F[_]](implicit effect: Effect[F]) extends CrobieRepoAlg[
       .withUniqueGeneratedKeys[Player]("player_id", "player_name")
   }
 
-  override def fetchScoresForPlayer(player_id: UUID): ConnectionIO[NonEmptyList[Score]] = {
+  override def fetchScoresForPlayer(playerId: UUID): ConnectionIO[List[Score]] = {
     sql"""SELECT score_id, player_id, score, game_date
          |  FROM emc.scores
-         |  WHERE player_id = $player_id""".stripMargin
+         |  WHERE player_id = $playerId""".stripMargin
       .queryWithLogHandler[Score](namedLogHandler("fetchScoresForPlayer"))
-      .nel
+      .to[List]
   }
 
   // handle uniqueness on service side for now, until I figure out a better way of dealing with score_id
-  private def insertScore(player_id: UUID, score: Int, game_date: LocalDate, application_version: String): ConnectionIO[Score] = {
+  private def insertScore(playerId: UUID, score: Int, gameDate: LocalDate, applicationVersion: String): ConnectionIO[Score] = {
     sql"""INSERT INTO emc.scores (player_id, score, game_date, application_version)
-          VALUES ($player_id, $score, $game_date, $application_version)
+          VALUES ($playerId, $score, $gameDate, $applicationVersion)
           ON CONFLICT (player_id, game_date, score) DO NOTHING
           RETURNING score_id, player_id, score, game_date
        """
@@ -63,17 +63,17 @@ class CrobieInterpreter[F[_]](implicit effect: Effect[F]) extends CrobieRepoAlg[
       .withUniqueGeneratedKeys[Score]("player_id", "score", "game_date")
   }
 
-  private def deleteScoreOnDateForPlayer(player_id: UUID, game_date: LocalDate): ConnectionIO[Int] = {
+  private def deleteScoreOnDateForPlayer(playerId: UUID, gameDate: LocalDate): ConnectionIO[Int] = {
     sql"""DELETE FROM emc.scores
-         |  WHERE player_id = $player_id AND game_date = $game_date""".stripMargin
+         |  WHERE player_id = $playerId AND game_date = $gameDate""".stripMargin
       .updateWithLogHandler(namedLogHandler("deleteScoreOnDateForPlayer"))
       .run
   }
 
-  override def insertScoreForPlayer(player_id: UUID, score: Int, game_date: LocalDate, application_version: String): ConnectionIO[Score] = {
+  override def insertScoreForPlayer(playerId: UUID, score: Int, gameDate: LocalDate, applicationVersion: String): ConnectionIO[Score] = {
     for {
-      _ <- deleteScoreOnDateForPlayer(player_id, game_date)
-      inserted <- insertScore(player_id, score, game_date, application_version)
+      _ <- deleteScoreOnDateForPlayer(playerId, gameDate)
+      inserted <- insertScore(playerId, score, gameDate, applicationVersion)
     } yield inserted
   }
 

@@ -7,10 +7,10 @@ import java.util.UUID
 object algebra {
 
   trait PlayerAlg[F[_]] {
-    def createPlayer(player: Player): F[Either[Throwable, Int]]
+    def createPlayer(name: String): F[Either[Throwable, Int]]
 
-    def readPlayerByName(name: String): F[Either[Throwable, Player]]
     def readPlayerById(playerId: UUID): F[Either[Throwable, Player]]
+    def readPlayersByName(name: String): F[Either[Throwable, List[Player]]]
   }
 
   trait ScoreAlg[F[_]] {
