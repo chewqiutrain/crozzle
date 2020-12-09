@@ -17,8 +17,7 @@ import crozzle.service.CrozzleServiceNew
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-
-
+//TODO: Logback configuration
 object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
 

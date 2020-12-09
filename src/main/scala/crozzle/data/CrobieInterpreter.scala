@@ -33,6 +33,13 @@ class CrobieInterpreter[F[_]](implicit effect: Effect[F]) extends CrobieRepoAlg[
       .to[List]
   }
 
+  override def fetchAllPlayers(): ConnectionIO[List[Player]] = {
+    sql"""SELECT player_id, player_name
+         |  FROM emc.players""".stripMargin
+      .queryWithLogHandler[Player](namedLogHandler("fetchAllPlayers"))
+      .to[List]
+  }
+
   override def insertPlayer(playerName: String, applicationVersion: String): ConnectionIO[Player] = {
     sql"""INSERT INTO emc.players (player_name, player_id, application_version)
           VALUES ($playerName, uuid_generate_v5(uuid_ns_oid(), $playerName), $applicationVersion)

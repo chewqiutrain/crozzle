@@ -52,6 +52,15 @@ class WebServer[F[_]: Timer](host: String, port: Int)(crozzleService: CrozzleSer
       resp
     }
 
+    case GET -> Root / "players" => {
+      val resp = for {
+        res <- crozzleService.readAllPlayers()
+        out <- handleServiceError(res)
+      } yield out
+
+      resp
+    }
+
     //TODO: take entity instead of query param
     case req @ POST -> Root / "player" => {
       val resp = for {

@@ -12,6 +12,7 @@ import doobie.implicits._
 import java.time.LocalDate
 import java.util.UUID
 
+//TODO: Move Exceptions to an error ADT; better variable names
 class CrozzleServiceNew[F[_]: Effect](crobieInterpreter: CrobieRepoAlg[ConnectionIO], xa: Resource[F, Transactor[F]])
   extends PlayerAlg[F] with ScoreAlg[F] {
 
@@ -48,6 +49,19 @@ class CrozzleServiceNew[F[_]: Effect](crobieInterpreter: CrobieRepoAlg[Connectio
 
     val prog = for {
       res <- crobieInterpreter.fetchPlayersByName(name)
+      _ <- if (res.isEmpty) notFound else AsyncConnectionIO.unit
+    } yield res
+
+    val x = xa.use{ r =>prog.transact(r).attempt }
+
+    x
+  }
+
+  override def readAllPlayers(): F[Either[Throwable, List[Player]]] = {
+    lazy val notFound = AsyncConnectionIO.raiseError[Unit](new Exception("Not found"))
+
+    val prog = for {
+      res <- crobieInterpreter.fetchAllPlayers()
       _ <- if (res.isEmpty) notFound else AsyncConnectionIO.unit
     } yield res
 

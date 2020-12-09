@@ -11,6 +11,7 @@ object algebra {
 
     def readPlayerById(playerId: UUID): F[Either[Throwable, Player]]
     def readPlayersByName(name: String): F[Either[Throwable, List[Player]]]
+    def readAllPlayers(): F[Either[Throwable, List[Player]]]
   }
 
   trait ScoreAlg[F[_]] {
