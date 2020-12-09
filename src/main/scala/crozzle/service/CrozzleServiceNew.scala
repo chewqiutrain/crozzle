@@ -44,7 +44,7 @@ class CrozzleServiceNew[F[_]: Effect](crobieInterpreter: CrobieRepoAlg[Connectio
 
 
   override def readPlayersByName(name: String): F[Either[Throwable, List[Player]]] = {
-    lazy val notFound = AsyncConnectionIO.raiseError(new Exception("Not found"))
+    lazy val notFound = AsyncConnectionIO.raiseError[Unit](new Exception("Not found"))
 
     val prog = for {
       res <- crobieInterpreter.fetchPlayersByName(name)
@@ -58,7 +58,7 @@ class CrozzleServiceNew[F[_]: Effect](crobieInterpreter: CrobieRepoAlg[Connectio
 
 
   override def createScore(playerId: UUID, score: Int): F[Either[Throwable, Int]] = {
-    lazy val notFound = AsyncConnectionIO.raiseError(new Exception("Not found"))
+    lazy val notFound = AsyncConnectionIO.raiseError[Unit](new Exception("Not found"))
 
     val prog = for {
       maybePlayer <- crobieInterpreter.fetchPlayerById(playerId)
@@ -75,7 +75,7 @@ class CrozzleServiceNew[F[_]: Effect](crobieInterpreter: CrobieRepoAlg[Connectio
 
 
   override def readPlayerScores(playerId: UUID): F[Either[Throwable, List[Score]]] = {
-    lazy val notFound = AsyncConnectionIO.raiseError(new Exception("Not found"))
+    lazy val notFound = AsyncConnectionIO.raiseError[Unit](new Exception("Not found"))
 
     val prog = for {
       maybePlayer <- crobieInterpreter.fetchPlayerById(playerId)

@@ -3,7 +3,6 @@ package crozzle.data
 import java.time.LocalDate
 import java.util.UUID
 
-import cats.data.NonEmptyList
 import cats.effect.Effect
 import doobie.implicits._
 import doobie.free.connection.ConnectionIO
@@ -35,13 +34,13 @@ class CrobieInterpreter[F[_]](implicit effect: Effect[F]) extends CrobieRepoAlg[
   }
 
   override def insertPlayer(playerName: String, applicationVersion: String): ConnectionIO[Player] = {
-    sql"""INSERT INTO emc.players (player_name, application_version)
-          VALUES ($playerName, $applicationVersion)
+    sql"""INSERT INTO emc.players (player_name, player_id, application_version)
+          VALUES ($playerName, uuid_generate_v5(uuid_ns_oid(), $playerName), $applicationVersion)
           ON CONFLICT (player_id) DO UPDATE
             SET player_name = EXCLUDED.player_name
           RETURNING player_id, player_name"""
       .updateWithLogHandler(namedLogHandler("insertPlayer"))
-      .withUniqueGeneratedKeys[Player]("player_id", "player_name")
+      .withUniqueGeneratedKeys[Player]("player_id")
   }
 
   override def fetchScoresForPlayer(playerId: UUID): ConnectionIO[List[Score]] = {

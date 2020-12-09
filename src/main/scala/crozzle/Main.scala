@@ -39,7 +39,7 @@ object Main extends IOApp {
     val port = 8080
     val webServer = new WebServer[IO](host, port)(crozzleService)
 
-    //TODO: scratch work; to tidy up. Also figure out http4s shutdown hooks
+    //TODO: scratch work; to tidy up.
     val x: IO[ExitCode] = IO(println("start")) *> webServer.server.serve.compile.drain.as(ExitCode.Success) <* IO(println("shutdown"))
     x
 

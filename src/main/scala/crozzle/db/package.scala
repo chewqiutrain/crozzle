@@ -18,7 +18,7 @@ package object db {
       "org.postgresql.Driver",                        // driver classname
       "jdbc:postgresql://localhost:15435/crobie",   // connect URL
       "postgres",                                   // username
-      "12345",                                     // password
+      "postgres",                                     // password
       connectionEC,                                     // await connection here
       Blocker.liftExecutionContext(transactionEC) // execute JDBC operations here
     )
