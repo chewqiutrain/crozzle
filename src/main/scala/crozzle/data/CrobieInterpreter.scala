@@ -53,13 +53,12 @@ class CrobieInterpreter[F[_]](implicit effect: Effect[F]) extends CrobieRepoAlg[
 
   // handle uniqueness on service side for now, until I figure out a better way of dealing with score_id
   private def insertScore(playerId: UUID, score: Int, gameDate: LocalDate, applicationVersion: String): ConnectionIO[Score] = {
-    sql"""INSERT INTO emc.scores (player_id, score, game_date, application_version)
-          VALUES ($playerId, $score, $gameDate, $applicationVersion)
-          ON CONFLICT (player_id, game_date, score) DO NOTHING
+    sql"""INSERT INTO emc.scores (score_id, player_id, score, game_date, application_version)
+          VALUES (uuid_generate_v4(), $playerId, $score, $gameDate, $applicationVersion)
           RETURNING score_id, player_id, score, game_date
        """
       .updateWithLogHandler(namedLogHandler("insertScore"))
-      .withUniqueGeneratedKeys[Score]("player_id", "score", "game_date")
+      .withUniqueGeneratedKeys[Score]("score_id", "player_id", "score", "game_date")
   }
 
   private def deleteScoreOnDateForPlayer(playerId: UUID, gameDate: LocalDate): ConnectionIO[Int] = {

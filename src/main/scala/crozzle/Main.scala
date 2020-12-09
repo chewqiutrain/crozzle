@@ -12,7 +12,6 @@ import doobie.util.ExecutionContexts
 
 import crozzle.db.getTransactor
 import crozzle.data.CrobieInterpreter
-import crozzle.model.{Player, Score}
 import crozzle.http.WebServer
 import crozzle.service.CrozzleServiceNew
 
