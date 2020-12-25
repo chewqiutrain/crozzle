@@ -9,6 +9,7 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.circe.CirceEntityCodec._
 import org.http4s.circe._
 import org.http4s.EntityEncoder
+import org.http4s.server.middleware._
 import crozzle.service.CrozzleServiceNew
 
 import scala.util.Try
@@ -98,7 +99,17 @@ class WebServer[F[_]: Timer](host: String, port: Int)(crozzleService: CrozzleSer
   }
   val routes = statusRoutes <+> playerRoutes <+> scoreRoutes
 
-  val app: Kleisli[F, Request[F], Response[F]] = Router("/" -> routes).orNotFound
+  import scala.concurrent.duration._
+
+  private val corsConfig = CORSConfig(
+    anyOrigin = true,
+    allowCredentials = true,
+    maxAge = 1.day.toSeconds
+  )
+
+  val c = CORS(routes, corsConfig)
+
+  val app: Kleisli[F, Request[F], Response[F]] = Router("/" -> c).orNotFound
 
   val server: BlazeServerBuilder[F] = BlazeServerBuilder[F](ec).bindHttp(port, host).withHttpApp(app)
 

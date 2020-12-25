@@ -15,6 +15,7 @@ libraryDependencies ++= Seq(logbackClassic, slf4j)
 
 val http4sVersion = "0.21.13"
 lazy val http4s_dsl = "org.http4s" %% "http4s-dsl" % http4sVersion
+lazy val http4s_server = "org.http4s" %% "http4s-server" % http4sVersion
 lazy val http4s_blaze_server = "org.http4s" %% "http4s-blaze-server" % http4sVersion
 lazy val http4s_blaze_client = "org.http4s" %% "http4s-blaze-client" % http4sVersion
 lazy val http4s_circe = "org.http4s" %% "http4s-circe" % http4sVersion
